@@ -34,13 +34,13 @@ func (a *ApiKeyAuthentication) ExtractCredentials(r *http.Request) (string, stri
 // Check user is authenticated.
 // Returns auth.User object
 func (a *ApiKeyAuthentication) IsAuthenticated(r *http.Request) (*auth.User, error) {
-	username, key, aerr := a.ExtractCredentials(r)
-	if aerr != nil {
-		return nil, aerr
+	username, key, err := a.ExtractCredentials(r)
+	if err != nil {
+		return nil, err
 	}
 
 	var apikey ApiKey
-    err := a.DB.Model(&apikey).
+    err = a.DB.Model(&apikey).
 		Column("User").
         Where("api_key.key = ? and username = ?", key, username).
         Select()
