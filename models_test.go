@@ -9,11 +9,11 @@ import (
 
 func ExampleApiAccess_String() {
 	row := ApiAccess{
-		Id: 1,
-		Identifier: "test",
-		Url: "https://www.example.com/",
+		Id:            1,
+		Identifier:    "test",
+		Url:           "https://www.example.com/",
 		RequestMethod: "GET",
-		Accessed: 123456,
+		Accessed:      123456,
 	}
 
 	fmt.Println(row)
@@ -26,9 +26,9 @@ func ExampleApiKey_String() {
 		Username: "admin",
 	}
 	row := ApiKey{
-		Id: 1,
-		User: &user,
-		Key: "qaz123",
+		Id:      1,
+		User:    &user,
+		Key:     "qaz123",
 		Created: time.Now(),
 	}
 
