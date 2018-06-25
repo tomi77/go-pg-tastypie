@@ -7,17 +7,17 @@ import (
 )
 
 func TestGetAuthentication(t *testing.T) {
-	t.Run("ApiKey", func(t *testing.T) {
-		authentication, err := GetAuthentication(TYPE_APIKEY, nil)
+	t.Run("APIKey", func(t *testing.T) {
+		authentication, err := GetAuthentication(TypeAPIKey, nil)
 		if authentication == nil {
 			t.Error("should return Authentication object")
 		}
 		if err != nil {
 			t.Error("shouldn't return error")
 		}
-		_, ok := authentication.(ApiKeyAuthentication)
+		_, ok := authentication.(APIKeyAuthentication)
 		if !ok {
-			t.Error("should return ApiKeyAuthentication object")
+			t.Error("should return APIKeyAuthentication object")
 		}
 	})
 	t.Run("Invalid", func(t *testing.T) {
@@ -31,9 +31,9 @@ func TestGetAuthentication(t *testing.T) {
 	})
 }
 
-func TestApiKeyAuthenticationExtractCredentials(t *testing.T) {
+func TestAPIKeyAuthenticationExtractCredentials(t *testing.T) {
 	r, _ := http.NewRequest(http.MethodGet, "http://www.example.com/", nil)
-	authentication := ApiKeyAuthentication{}
+	authentication := APIKeyAuthentication{}
 	t.Run("NoHeader", func(t *testing.T) {
 		r.Header.Del("Authorization")
 		username, key, err := authentication.ExtractCredentials(r)
@@ -79,10 +79,10 @@ func TestApiKeyAuthenticationExtractCredentials(t *testing.T) {
 	})
 }
 
-func ExampleApiKeyAuthentication_ExtractCredentials() {
+func ExampleAPIKeyAuthentication_ExtractCredentials() {
 	r, _ := http.NewRequest(http.MethodGet, "http://www.example.com/", nil)
 	r.Header.Set("Authorization", "ApiKey admin:qaz123")
-	authentication := ApiKeyAuthentication{}
+	authentication := APIKeyAuthentication{}
 
 	username, key, _ := authentication.ExtractCredentials(r)
 	fmt.Println(username, key)

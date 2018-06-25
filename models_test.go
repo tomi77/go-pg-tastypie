@@ -7,11 +7,11 @@ import (
 	"github.com/tomi77/go-pg-django/auth"
 )
 
-func ExampleApiAccess_String() {
-	row := ApiAccess{
-		Id:            1,
+func ExampleAPIAccess_String() {
+	row := APIAccess{
+		ID:            1,
 		Identifier:    "test",
-		Url:           "https://www.example.com/",
+		URL:           "https://www.example.com/",
 		RequestMethod: "GET",
 		Accessed:      123456,
 	}
@@ -21,12 +21,12 @@ func ExampleApiAccess_String() {
 	// test @ 123456
 }
 
-func ExampleApiKey_String() {
+func ExampleAPIKey_String() {
 	user := auth.User{
 		Username: "admin",
 	}
-	row := ApiKey{
-		Id:      1,
+	row := APIKey{
+		ID:      1,
 		User:    &user,
 		Key:     "qaz123",
 		Created: time.Now(),

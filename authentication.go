@@ -11,20 +11,21 @@ import (
 
 // Authentication types
 const (
-	TYPE_APIKEY = 1 << iota // ApiKey Authentication
+	TypeAPIKey = 1 << iota // APIKey Authentication
 )
 
-const APIKEY_AUTHORIZATION_HEADER = "Authorization"
+// APIKeyAuthorizationHeader is a key in HTTP header where is stored authorization key
+const APIKeyAuthorizationHeader = "Authorization"
 
 // Predefined errors
 var (
-	InvalidAuthenticationType = errors.New("Invalid authentication type")
-	InvalidAuthorizationHeader = errors.New("Invalid Authorization header")
-	InvalidCredentials = errors.New("Invalid credentials")
-	ErrorUserIsInactive = errors.New("User is inactive")
+	ErrorInvalidAuthenticationType  = errors.New("Invalid authentication type")
+	ErrorInvalidAuthorizationHeader = errors.New("Invalid Authorization header")
+	ErrorInvalidCredentials         = errors.New("Invalid credentials")
+	ErrorUserIsInactive             = errors.New("User is inactive")
 )
 
-// Interface to various authentication backends
+// Authentication is a interface to various authentication backends
 type Authentication interface {
 	// Extract credentials from request
 	ExtractCredentials(r *http.Request) (string, string, error)
@@ -33,49 +34,50 @@ type Authentication interface {
 	IsAuthenticated(r *http.Request) (*auth.User, error)
 }
 
-// Get Authentication object based on type and init it
+// GetAuthentication gets Authentication object based on type and initiates it
 func GetAuthentication(authenticationType int, db *pg.DB) (Authentication, error) {
 	switch authenticationType {
-	case TYPE_APIKEY:
-		return ApiKeyAuthentication{DB: db}, nil
+	case TypeAPIKey:
+		return APIKeyAuthentication{DB: db}, nil
 	default:
-		return nil, InvalidAuthenticationType
+		return nil, ErrorInvalidAuthenticationType
 	}
 }
 
-type ApiKeyAuthentication struct {
+// APIKeyAuthentication represents authentication based on API Key
+type APIKeyAuthentication struct {
 	// Handler do database connection
 	DB *pg.DB
 }
 
-// Extract username and tastypie apikey from request
-func (a ApiKeyAuthentication) ExtractCredentials(r *http.Request) (string, string, error) {
-	authentication := r.Header.Get(APIKEY_AUTHORIZATION_HEADER)
+// ExtractCredentials returns username and tastypie apikey extracted from request
+func (a APIKeyAuthentication) ExtractCredentials(r *http.Request) (string, string, error) {
+	authentication := r.Header.Get(APIKeyAuthorizationHeader)
 	if strings.Index(strings.ToLower(authentication), "apikey ") == -1 {
-		return "", "", InvalidAuthorizationHeader
+		return "", "", ErrorInvalidAuthorizationHeader
 	}
 	data := strings.Split(authentication, " ")
 	data = strings.Split(data[1], ":")
 	if len(data) != 2 {
-		return "", "", InvalidAuthorizationHeader
+		return "", "", ErrorInvalidAuthorizationHeader
 	}
 	return data[0], data[1], nil
 }
 
-// Checks if user is authenticated and return it
-func (a ApiKeyAuthentication) IsAuthenticated(r *http.Request) (*auth.User, error) {
+// IsAuthenticated checks if user is authenticated and return it
+func (a APIKeyAuthentication) IsAuthenticated(r *http.Request) (*auth.User, error) {
 	username, key, err := a.ExtractCredentials(r)
 	if err != nil {
 		return nil, err
 	}
 
-	var apikey ApiKey
+	var apikey APIKey
 	err = a.DB.Model(&apikey).
 		Column("User").
 		Where("api_key.key = ? and username = ?", key, username).
 		Select()
 	if err != nil {
-		return nil, InvalidCredentials
+		return nil, ErrorInvalidCredentials
 	}
 	if apikey.User.IsActive == false {
 		return nil, ErrorUserIsInactive
